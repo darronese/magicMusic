@@ -23,5 +23,9 @@ class Note:
     def accent(self, accent):
         self._accent = accent
 
+    
+    #finish this
+    def randomizePitch(pitch_note, number_generator):
+    randomizePitch(pitch_note, number_generator)
     #add music 21's feature to play notes
 
