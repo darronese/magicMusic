@@ -7,3 +7,7 @@ us['musicxmlPath'] = '/Applications/MuseScore 4.app/'
 
 def main():
     main()
+
+
+if __name__ == "__main__":
+    main()
