@@ -1,1 +1,1 @@
-from generators import music_generator
+from music import music_generator
