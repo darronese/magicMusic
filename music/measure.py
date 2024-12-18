@@ -1,6 +1,6 @@
 import random
 
-from music21 import chord, instrument, key, meter, note, stream, tempo
+from music21 import chord, key, meter, note
 
 
 class Measure:
@@ -29,4 +29,9 @@ class Measure:
 
         nt.duration.quarterLength = random.choice([0.25, 0.5, 1, 2])
 
-        return nt
+        return nt;
+
+    def generate_time(self):
+        time = random.choice(['2/4', '3/4', '4/4', '2/8', '3/8', '4/8', '6/8', '2/2', '3/2', '4/2',])
+        signature = meter.TimeSignature(time)
+        return signature
