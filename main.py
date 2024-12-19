@@ -1,7 +1,9 @@
 import music21
+#i don't know why pyright is giving an error to imports even though it works
+#pyright: reportPrivateImportUsage=false
 from music21 import chord, key, meter, note, stream
 
-from music.measure import Measure
+from src.measure import Measure
 
 #user settings
 us = music21.environment.UserSettings()

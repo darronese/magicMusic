@@ -1,5 +1,6 @@
 import random
 
+#pyright: reportPrivateImportUsage=false
 from music21 import chord, key, meter, note
 
 
@@ -21,9 +22,10 @@ class Measure:
         number = random.choice(['0', '1', '2', '3', '4', '5', '6', '7'])
         #random octave
         octave = random.choice(range(3,7))
+        #add on accidentals later: maybe have a certain amount per 4 measures
         accidental = random.choice([None, '#', 'b'])
 
-        note_name = pitch + (accidental if accidental else '') + str(octave)
+        note_name = pitch + str(octave)
 
         nt = note.Note(note_name)
 
@@ -35,3 +37,10 @@ class Measure:
         time = random.choice(['2/4', '3/4', '4/4', '2/8', '3/8', '4/8', '6/8', '2/2', '3/2', '4/2',])
         signature = meter.TimeSignature(time)
         return signature
+
+    def generate_chords(self):
+        #generate chords together based on chord progression
+
+    def generate_new_measure(self):
+        #parse time signature to get first number
+        #loop to generate chords and notes until measure is completed
