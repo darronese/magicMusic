@@ -11,31 +11,23 @@ us = music21.environment.UserSettings()
 us['musicxmlPath'] = '/Applications/MuseScore 4.app/'
 
 def main():
-    #initialize measure
-    new_measure = Measure()
-    #generate components
-    key = new_measure.generate_key()
-    time = new_measure.generate_time()
-    note = new_measure.generate_note()
+    measure = Measure()
+    #testing progression
+    progression_name = "Pachelbel's Canon"  # Change this to test other progressions
+    #progression_name = measure.generate_chord_progression()
 
-    #create the measure and append the items
-    m21_measure = stream.Measure()
-    m21_measure.append(time)
-    m21_measure.append(key)
-    m21_measure.append(note)
+    key_signature = measure.generate_key()
+    print(f"Generated Key: {key_signature.tonic} {key_signature.mode}")
+    #generate chords
+    chords = measure.generate_chords(progression_name)
+    #prints out progression and chord in terminal
+    print(f"Progression: {progression_name}")
+    for idx, chord_obj in enumerate(chords):
+            print(f"Chord {idx + 1}: {chord_obj}")
 
-
-    #append the measure to the part from stream
-    part = stream.Part()
-    part.append(m21_measure)
-
-
-    #append the part to the score
-    score = stream.Score()
-    score.append(part)
-
-    # Display the score
-    score.show()
+    #show within midi editor
+    s = stream.Stream(chords)
+    s.show()
 
 if __name__ == "__main__":
     main()

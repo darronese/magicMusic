@@ -1,46 +1,54 @@
 import random
 
 #pyright: reportPrivateImportUsage=false
-from music21 import chord, key, meter, note
+from music21 import chord, key, meter, roman
+
+from src.chord_progressions import CHORD_PROGRESSIONS
 
 
 class Measure:
-    def __init__(self, measure=None, time_signature=None):
+    #constructor
+    def __init__(self):
         self.key = None
-        self.chord = None
-        self.notes = []
-        self.measure = measure
-        self.time_signature = time_signature
+        self.time = None
+        self.progression = None
+        self.chords = []
 
+    #generates the key for the chords
     def generate_key(self): 
-        key_signature = key.KeySignature(random.choice(range(-7, 8)))
-        return key_signature
+        sharps_or_flats = key.KeySignature(random.choice(range(-7, 8)))
+        key_signature = key.Key(sharpsOrFlats=sharps_or_flats)
+        self.key = key_signature
+        return self.key
 
-    def generate_note(self): 
-        #Random note
-        pitch = random.choice(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
-        number = random.choice(['0', '1', '2', '3', '4', '5', '6', '7'])
-        #random octave
-        octave = random.choice(range(3,7))
-        #add on accidentals later: maybe have a certain amount per 4 measures
-        accidental = random.choice([None, '#', 'b'])
-
-        note_name = pitch + str(octave)
-
-        nt = note.Note(note_name)
-
-        nt.duration.quarterLength = random.choice([0.25, 0.5, 1, 2])
-
-        return nt;
-
+    #generates the time signature
     def generate_time(self):
         time = random.choice(['2/4', '3/4', '4/4', '2/8', '3/8', '4/8', '6/8', '2/2', '3/2', '4/2',])
         signature = meter.TimeSignature(time)
-        return signature
+        self.time = signature
+        return self.time
 
-    def generate_chords(self):
-        #generate chords together based on chord progression
+    #generates the random chord progression listed
+    def generate_chord_progression(self):
+        progression = random.choice(range(1, 32))
+        self.progression = progression
+        return self.progression
 
-    def generate_new_measure(self):
-        #parse time signature to get first number
-        #loop to generate chords and notes until measure is completed
+    #generates chords based on chord progression
+    def generate_chords(self, progression_name):
+        if not self.key:
+            self.generate_key()
+
+        progression = CHORD_PROGRESSIONS.get(progression_name)
+        if not progression:
+            raise ValueError(f"Progression '{progression_name}' not found!")
+
+        self.chords = []
+
+        for note in progression:
+            try:
+                roman_chord = roman.RomanNumeral(note, self.key)
+                self.chords.append(roman_chord)
+            except Exception as e:
+                raise ValueError(f"Error generating chord for symbol '{note}': {e}")
+        return self.chords
