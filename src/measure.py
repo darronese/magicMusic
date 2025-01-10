@@ -16,9 +16,13 @@ class Measure:
 
     #generates the key for the chords
     def generate_key(self): 
-        sharps_or_flats = key.KeySignature(random.choice(range(-7, 8)))
-        key_signature = key.Key(sharpsOrFlats=sharps_or_flats)
-        self.key = key_signature
+        sharps_or_flats = random.choice(range(-7, 8))
+        mode = random.choice(['major', 'minor'])
+
+        if mode == 'major':
+            self.key = key.KeySignature(sharps_or_flats).asKey(mode='major')
+        else:
+            self.key = key.KeySignature(sharps_or_flats).asKey(mode='minor')
         return self.key
 
     #generates the time signature
@@ -30,20 +34,21 @@ class Measure:
 
     #generates the random chord progression listed
     def generate_chord_progression(self):
+        #range of 32 chord progressions
         progression = random.choice(range(1, 32))
         self.progression = progression
         return self.progression
 
     #generates chords based on chord progression
     def generate_chords(self, progression_name):
+        #if key is empty, generate a key
         if not self.key:
             self.generate_key()
 
         progression = CHORD_PROGRESSIONS.get(progression_name)
+        #error message for missing progression
         if not progression:
             raise ValueError(f"Progression '{progression_name}' not found!")
-
-        self.chords = []
 
         for note in progression:
             try:
