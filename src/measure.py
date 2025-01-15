@@ -1,4 +1,5 @@
 import random
+from typing import cast
 
 #pyright: reportPrivateImportUsage=false
 from music21 import bar, duration, key, meter, note, roman, stream
@@ -182,7 +183,7 @@ class Measure:
         part = stream.Part()
 
         #build each music elemnet based on the time signature
-        beats_per_measure = self.time.barDuration.quarterLength
+        beats_per_measure = self.time.barDuration.quarterLength # type: ignore[union-attr]
 
         #create our first measure and append the time signature
         current_measure = stream.Measure()

@@ -18,7 +18,6 @@ us['musicxmlPath'] = '/Applications/MuseScore 4.app/'
 def main():
     measure = Measure()
     num_measures = 1
-    #testing progression
     progression_name = measure.generate_chord_progression()
     print(f"Progression: {progression_name}")
     #input validation loop: asks user for the amount of measures they would like to generate#

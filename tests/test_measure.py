@@ -12,17 +12,21 @@ def test_generate_key():
 
 def test_generate_time():
     measure = Measure()
-    generated_time = measure.generate_time
+    generated_time = measure.generate_time()
     assert generated_time is not None, "Time Signature generation returned none"
     assert hasattr(generated_time, 'numerator'), "Time Signature has no numerator"
     assert hasattr(generated_time, 'denominator'), "Time Signature has no denominator"
+
+def test_generate_accidental_note():
+    measure = Measure()
+    accidental_note = measure.generate_accidental_note()
+    #assert accidental_note is not None, ""
 
 def test_generate_chords():
     measure = Measure()
     measure.generate_key()
     measure.generate_time()
-    
-    progression_name = "Pachabel's Canon"
+    progression_name = measure.generate_chord_progression()
     chords = measure.generate_chords(progression_name)
 
     assert len(chords) > 0, "No chords were generated"
