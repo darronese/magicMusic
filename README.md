@@ -31,3 +31,4 @@ This project is still unfinished, but the basic idea is ready!
 
 # Dependencies
 - Python3
+- music21 library
