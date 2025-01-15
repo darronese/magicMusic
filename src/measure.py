@@ -187,6 +187,7 @@ class Measure:
 
         #create our first measure and append the time signature
         current_measure = stream.Measure()
+        current_measure.append(self.key)
         current_measure_duration = 0.0
         current_measure.append(self.time)
 
