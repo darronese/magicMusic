@@ -1,3 +1,4 @@
+#progression imported from ToneGym!#
 CHORD_PROGRESSIONS = {
     "Pachelbel's Canon": ["I", "V", "vi", "iii", "IV", "I", "IV", "V"],
     "50s Progression": ["I", "vi", "IV", "V"],
