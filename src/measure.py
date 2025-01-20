@@ -2,7 +2,7 @@ import random
 from typing import cast
 
 #pyright: reportPrivateImportUsage=false
-from music21 import bar, duration, key, meter, note, roman, stream
+from music21 import bar, duration, key, meter, note, pitch, roman, stream
 
 from src.chord_progressions import CHORD_PROGRESSIONS
 from src.helper import weighted_random_choice
@@ -37,12 +37,6 @@ class Measure:
 
         return nt;
 
-    #generates accidental note
-    def generate_accidental_note(self):
-        n = self.generate_note()
-        accidental_type = self.generate_accidental
-        n.accidental = accidental_type
-        return n
 
     def generate_note_from_chord(self, symbol, generated_key):
         #ensures key is generated
@@ -87,6 +81,15 @@ class Measure:
     def generate_accidental(self):
         accidental_type = random.choice(["sharp", "flat"])
         return accidental_type
+
+    #generates accidental note
+    def generate_accidental_note(self):
+        n = self.generate_note()
+        accidental_type = self.generate_accidental()
+        #randomly generate an octave
+        octave = random.choice(range(3,7))
+        n.pitch.accidental = accidental_type
+        return n
 
     #generates the time signature
     def generate_time(self):
