@@ -5,7 +5,8 @@ from typing import cast
 from music21 import bar, duration, key, meter, note, pitch, roman, stream
 
 from src.chord_progressions import CHORD_PROGRESSIONS
-from src.helper import weighted_random_choice
+from src.helper import get_next_note_markov, weighted_random_choice
+from src.markov import MARKOV_CHAIN
 
 
 class Measure:
@@ -38,15 +39,29 @@ class Measure:
         return nt;
 
 
-    def generate_note_from_chord(self, symbol, generated_key):
+    def generate_note_from_chord(self, symbol, generated_key, last_note_name):
         #ensures key is generated
         if not self.key:
             self.generate_key()
+
+        #start by building the chord from the roman numeral
         chord = roman.RomanNumeral(symbol, generated_key)
         chord_pitches = chord.pitches
 
-        #randomly pick within the pitches
-        chosen_pitch = random.choice(chord_pitches)
+        #if markov chain and a last note name
+        if last_note_name is not None:
+            desired_note_name = get_next_note_markov(last_note_name, MARKOV_CHAIN)
+        else:
+            desired_note_name = random.choice([p.name for p in chord_pitches])
+
+        #try to find the chord pitch that best matches desired_note_name
+        possible_matches = [p for p in chord_pitches if p.name == desired_note_name]
+
+        if possible_matches:
+            chosen_pitch = random.choice(possible_matches)
+        else:
+            chosen_pitch = random.choice(chord_pitches)
+
         n = note.Note(chosen_pitch)
 
         #random length
@@ -112,7 +127,8 @@ class Measure:
         self.progression = progression
         return self.progression
 
-    def generate_musical_event(self, symbol):
+    # Returns event object and the updated last_note_name
+    def generate_musical_event(self, symbol, last_note_name=None):
         weights = {
             "chord": 0.40,
             "single_note": 0.47,
@@ -122,16 +138,25 @@ class Measure:
         event_type = weighted_random_choice(weights)
 
         if event_type == "chord":
-            return roman.RomanNumeral(symbol, self.key)
+            music_event = roman.RomanNumeral(symbol, self.key)
+            music_event.duration = duration.Duration(
+                random.choice([0.25, 0.5, 1.0, 2.0, 4.0])
+            )
+            return music_event, last_note_name
         elif event_type == "rest":
             return self.generate_rest()
         elif event_type == "single_note":
-            return self.generate_note_from_chord(symbol, self.key)
+            music_event = self.generate_note_from_chord(symbol, self.key, last_note_name)
+            last_note_name = music_event.pitch.name
+            return music_event, last_note_name
         elif event_type == "accidental":
-            return self.generate_accidental_note()
-
-        #return the regular symbol in key
-        return roman.RomanNumeral(symbol, self.key)
+            music_event = self.generate_accidental_note()
+            last_note_name = music_event.pitch.name
+            return music_event, last_note_name
+        else:
+            music_event = self.generate_note_from_chord(symbol, self.key, last_note_name)
+            last_note_name = music_event.pitch.name
+            return music_event, last_note_name
 
     #generates chords based on chord progression
     def generate_chords(self, progression_name):
@@ -197,33 +222,52 @@ class Measure:
         #current measure count (at least one)
         measure_count = 1
 
+        last_note_name = None
+
         #loop until we hit max measures
         while measure_count <= max_measures:
+            # create new event type within loop
             for symbol in progression:
-                event = self.generate_musical_event(symbol)
-                event_duration = event.duration.quarterLength
+                event_type = weighted_random_choice({
+                    "chord": 0.40,
+                    "single_note": 0.47,
+                    "rest": 0.10,
+                    "accidental": 0.03
+                })
+                if event_type == "chord":
+                    music_event = roman.RomanNumeral(symbol, self.key)
+                    music_event.duration = duration.Duration(random.choice([0.25, 0.5, 1.0, 2.0, 4.0]))
+                elif event_type == "rest":
+                    music_event = self.generate_rest()
+                elif event_type == "accidental":
+                    music_event = self.generate_accidental_note()
+                    last_note_name = music_event.pitch.name
+                else:
+                    music_event = self.generate_note_from_chord(symbol, self.key, last_note_name)
+                    last_note_name = music_event.pitch.name
 
-                #can our music event fit in our current duration?
+                event_duration = music_event.duration.quarterLength
+
+                # check if it fits within our current measure
                 if current_measure_duration + event_duration <= beats_per_measure:
-                    current_measure.append(event)
+                    current_measure.append(music_event)
                     current_measure_duration += event_duration
-                #if not, append it to the next measure and check if we hit our max measures
                 else:
                     part.append(current_measure)
                     measure_count += 1
                     if measure_count > max_measures:
                         break
-                    #start a new measure if max measures was not yet reached
+                    
                     current_measure = stream.Measure()
                     current_measure_duration = 0.0
 
-                    current_measure.append(event)
+                    current_measure.append(music_event)
                     current_measure_duration += event_duration
-            #we finished chord progression, this means we didn't break
             else:
                 continue
-            #we broke out of for loop, append the rest
+
             break
+
         #if we hadn't exceed max_measures and still have events, append it again
         if measure_count <= max_measures and len(current_measure.notesAndRests) > 0:
             part.append(current_measure)

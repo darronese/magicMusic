@@ -2,6 +2,7 @@
 # 1: Test more of measure.py using pytest
 # 2: Depending on the denominator of the time signature, change the odds of the note duration, e.g 4/4: more quarter notes, 6/8: more eigth notes, etc
 # 3: Add bass clef corresponding to treble's progression
+# 4: Feature where user can pick out the measure(s) they like the most, save it into a file
 
 import music21
 #i don't know why pyright is giving an error to imports even though it works
